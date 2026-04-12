@@ -1,13 +1,22 @@
-const COMPLETED_BOOKS_ID = 'completeBookshelfList';
-const UNCOMPLETE_BOOKS_ID = 'incompleteBookshelfList';
-const SEARCH_FIELD_ID = 'searchBookTitle';
-const TITLE_FIELD_ID = 'title';
-const AUTHOR_FIELD_ID = 'author';
-const YEAR_FIELD_ID = 'year';
-const IS_FINISEHD_ID = 'is-finished';
-const SUBMIT_BUTTON_ID = 'submit';
-const EDIT_BUTTON_ID = 'edit';
-const HIDDEN_INPUT = 'bookId';
-const BOOKSHELF_KEY = 'bookshelf';
-const BOOK_ID = "bookID";
-let listBooks = [];
+const STORAGE_KEY = "bookshelf"
+
+const INPUT_BOOK_FORM_ID = "inputBook"
+const SEARCH_BOOK_FORM_ID = "searchBook"
+const INPUT_TITLE_ID = "inputBookTitle"
+const INPUT_AUTHOR_ID = "inputBookAuthor"
+const INPUT_YEAR_ID = "inputBookYear"
+const INPUT_IS_COMPLETE_ID = "inputBookIsComplete"
+const SEARCH_BOOK_TITLE_ID = "searchBookTitle"
+const EDIT_BUTTON_ID = "edit"
+
+const INCOMPLETE_BOOKSHELF_LIST_ID = "incompleteBookshelfList"
+const COMPLETE_BOOKSHELF_LIST_ID = "completeBookshelfList"
+
+const BOOK_ITEM_TEST_IDS = Object.freeze({
+  ITEM: "bookItem",
+  TITLE: "bookItemTitle",
+  AUTHOR: "bookItemAuthor",
+  YEAR: "bookItemYear",
+  TOGGLE_BUTTON: "bookItemIsCompleteButton",
+  DELETE_BUTTON: "bookItemDeleteButton",
+})

@@ -1,274 +1,99 @@
-function addBook() {
-  const title = document.querySelector("#inputBookTitle"),
-    author = document.querySelector("#inputBookAuthor"),
-    year = document.querySelector("#inputBookYear"),
-    complete = document.querySelector("#inputBookIsComplete"),
-    book = {
-      id: +new Date(),
-      title: title.value,
-      author: author.value,
-      year: year.value,
-      isComplete: complete.checked,
-    };
-  listBooks.push(book),
-  document.dispatchEvent(new Event("bookChanged"));
-}
+function getBookInputValues() {
+  const titleField = document.getElementById(INPUT_TITLE_ID)
+  const authorField = document.getElementById(INPUT_AUTHOR_ID)
+  const yearField = document.getElementById(INPUT_YEAR_ID)
+  const isCompleteField = document.getElementById(INPUT_IS_COMPLETE_ID)
 
-const addBookList = () => {
-  const completedBooksContainer = document.getElementById(COMPLETED_BOOKS_ID);
-  const uncompleteBooksContainer = document.getElementById(UNCOMPLETE_BOOKS_ID);
-
-  const title = document.getElementById(TITLE_FIELD_ID).value;
-  const author = document.getElementById(AUTHOR_FIELD_ID).value;
-  const year = document.getElementById(YEAR_FIELD_ID).value;
-  const isFinished = document.getElementById(IS_FINISEHD_ID).checked;
-
-  const composedData = composeData(title, author, year, isFinished);
-  const book = makeBookList(composedData);
-
-  if(isFinished) {
-      completedBooksContainer.append(book);
-  } else {
-      uncompleteBooksContainer.append(book);
+  return {
+    title: titleField.value.trim(),
+    author: authorField.value.trim(),
+    year: Number(yearField.value),
+    isComplete: isCompleteField.checked,
   }
-
-  books.push(composedData);
-
-  updateDataToStorage();
-  clearForm();
 }
 
-const makeBookList = ({id, title, author, year, isFinished}) => {
-  const bookContainer = document.createElement('div');
-  bookContainer.classList.add('book');
-  bookContainer.setAttribute('id', id);
+function resetBookInputForm() {
+  const titleField = document.getElementById(INPUT_TITLE_ID)
+  const authorField = document.getElementById(INPUT_AUTHOR_ID)
+  const yearField = document.getElementById(INPUT_YEAR_ID)
+  const isCompleteField = document.getElementById(INPUT_IS_COMPLETE_ID)
 
-  const imageBook = document.createElement('img');
+  titleField.value = ""
+  authorField.value = ""
+  yearField.value = ""
+  isCompleteField.checked = false
+}
 
-  const yearBook = document.createElement('div');
-  yearBook.classList.add('year');
-  yearBook.innerText = year;
+function createBookItemElement(book, handlers) {
+  const bookContainer = document.createElement("div")
+  bookContainer.classList.add("card--book")
+  bookContainer.setAttribute("data-bookid", String(book.id))
+  bookContainer.setAttribute("data-testid", BOOK_ITEM_TEST_IDS.ITEM)
 
-  const titleBook = document.createElement('h1');
-  titleBook.innerText = title;
+  const titleEl = document.createElement("h3")
+  titleEl.setAttribute("data-testid", BOOK_ITEM_TEST_IDS.TITLE)
+  titleEl.textContent = book.title
 
-  const authorBook = document.createElement('p');
-  authorBook.innerText = `Author : ${author}`;
+  const authorEl = document.createElement("p")
+  authorEl.setAttribute("data-testid", BOOK_ITEM_TEST_IDS.AUTHOR)
+  authorEl.textContent = `Penulis: ${book.author}`
 
-  const buttonsContainer = document.createElement('div');
-  buttonsContainer.classList.add('buttons');
+  const yearEl = document.createElement("p")
+  yearEl.setAttribute("data-testid", BOOK_ITEM_TEST_IDS.YEAR)
+  yearEl.textContent = `Tahun: ${book.year}`
 
-  BTN_ATTRIBUTES.forEach(btn => {
-      const button = document.createElement('button');
-      button.classList.add('btn');
-      button.classList.add(btn.class);
-      button.setAttribute('title', btn.title);
-      
-      if(btn.type === 'markCompleted' || btn.type === 'markUncomplete') {
-          button.innerHTML = btn.icon;
-          if (isFinished) {
-              bookContainer.classList.add('completed');
-              if (btn.type === 'markUncomplete') {
-                  button.setAttribute('id', 'uncompleteButton');
-                  button.style.display = 'none';
-              } else {
-                  button.setAttribute('id', 'completedButton');
-              }
-          }
-          else {
-              bookContainer.classList.add('uncomplete');
-              button.setAttribute('id', 'completedButton');
-              if (btn.type === 'markCompleted') {
-                  button.style.display = 'none';
-              } else {
-                  button.setAttribute('id', 'uncompleteButton');
-              }
-          }
-      } else {
-          button.innerHTML = btn.icon;
-      }
+  const actionContainer = document.createElement("div")
+  actionContainer.classList.add("button-group")
 
-      button.addEventListener("click", function (event) {
-          buttonActions(btn.type, id, button);
-      });
-
-      buttonsContainer.append(button);
+  const toggleButton = document.createElement("button")
+  toggleButton.type = "button"
+  toggleButton.setAttribute("data-testid", BOOK_ITEM_TEST_IDS.TOGGLE_BUTTON)
+  toggleButton.textContent = book.isComplete
+    ? "Belum selesai dibaca"
+    : "Selesai dibaca"
+  toggleButton.addEventListener("click", function () {
+    handlers.onToggle(book.id)
   })
 
-  bookContainer.append(imageBook, titleBook, authorBook, yearBook, buttonsContainer);
-  return bookContainer;
-}
-
-const buttonActions = (type, id, button) => {
-  switch (type) {
-      case 'markCompleted': 
-          changeMarking(id, button, 'completed');
-          break;
-      case 'markUncomplete': 
-          changeMarking(id, button, 'uncomplete');
-          break;
-      case 'edit': 
-      editData(id);
-          break;
-      case 'delete': 
-          const confirm = window.confirm("Are you sure want to delete this data?");
-          if (confirm) removeBookList(id);
-          break;
-  }
-}
-
-const removeBookList = id => {
-  const bookPosition = findBookIndex(id);
-  books.splice(bookPosition, 1);
-
-  const parentElement = document.getElementById(id);
-  parentElement.remove();
-
-  updateDataToStorage();
-}
-
-const changeMarking = (id, button, status) => {
-  const bookData = findBook(id);
-
-  const completedBooksContainer = document.getElementById(COMPLETED_BOOKS_ID);
-  const uncompleteBooksContainer = document.getElementById(UNCOMPLETE_BOOKS_ID);
-
-  const parentElement = document.getElementById(id);
-  const parentElementClasses = parentElement.className.split(" ");
-
-  if(status === 'completed') {
-      const child = parentElement.querySelector(`.buttons #uncompleteButton`)
-      child.style.display = '';
-      bookData.isFinished = false;
-  }
-  else {
-      const child = parentElement.querySelector(`.buttons #completedButton`)
-      child.style.display = '';
-      bookData.isFinished = true;
-  }
-
-  button.style.display = 'none';
-
-  parentElementClasses.forEach(parentClass => {
-      if(parentClass === 'completed') {
-          uncompleteBooksContainer.append(parentElement);
-          parentElement.classList.remove('completed');
-          parentElement.classList.add('uncomplete');
-      }
-      else if(parentClass === 'uncomplete') {
-          completedBooksContainer.append(parentElement);
-          parentElement.classList.remove('uncomplete');
-          parentElement.classList.add('completed');
-      }
-  });
-
-  updateDataToStorage();
-}
-
-const editData = (id) => {
-  const editButton = document.getElementById(EDIT_BUTTON_ID);
-  const submitButton = document.getElementById(SUBMIT_BUTTON_ID);
-  const hiddenInput = document.getElementById(HIDDEN_INPUT);
-  hiddenInput.setAttribute('value', id)
-  editButton.style.display = '';
-  submitButton.style.display = 'none';
-
-  const parentElement = document.getElementById(id);
-  const title = parentElement.querySelector('h1').innerHTML;
-  const author = parentElement.querySelector('p').innerHTML;
-  const authorName = author.substr(9)
-  const year = parentElement.querySelector('.year').innerHTML;
-  let checked = true;
-
-  const parentElementClasses = parentElement.className.split(" ");
-  parentElementClasses.forEach(parentClass => {
-      if(parentClass === 'uncomplete') {
-          checked = false;
-      }
+  const deleteButton = document.createElement("button")
+  deleteButton.type = "button"
+  deleteButton.classList.add("red")
+  deleteButton.setAttribute("data-testid", BOOK_ITEM_TEST_IDS.DELETE_BUTTON)
+  deleteButton.textContent = "Hapus buku"
+  deleteButton.addEventListener("click", function () {
+    handlers.onDelete(book.id)
   })
-  
-  document.getElementById(TITLE_FIELD_ID).value = title;
-  document.getElementById(AUTHOR_FIELD_ID).value = authorName;
-  document.getElementById(YEAR_FIELD_ID).value = year;
-  document.getElementById(IS_FINISEHD_ID).checked = checked;
+
+  actionContainer.append(toggleButton, deleteButton)
+  bookContainer.append(titleEl, authorEl, yearEl, actionContainer)
+
+  return bookContainer
 }
 
-const clearForm = () => {
-  const btnEdit = document.getElementById('edit');
-  const btnSubmit = document.getElementById('submit');
-  btnEdit.style.display = 'none';
-  btnSubmit.style.display = '';
-  
-  document.getElementById('inputBookTitle').value = '';
-  document.getElementById('inputBookAuthor').value = '';
-  document.getElementById('inputBookYear').value = '';
-  document.getElementById('inputBookIsComplete').checked = false;
-}
+function renderBooks(books, handlers, keyword = "") {
+  const incompleteContainer = document.getElementById(
+    INCOMPLETE_BOOKSHELF_LIST_ID,
+  )
+  const completeContainer = document.getElementById(COMPLETE_BOOKSHELF_LIST_ID)
 
-const updateData = () => {
-  const id = document.getElementById(HIDDEN_INPUT).value;
-  const title = document.getElementById(TITLE_FIELD_ID).value;
-  const author = document.getElementById(AUTHOR_FIELD_ID).value;
-  const year = document.getElementById(YEAR_FIELD_ID).value;
-  const isFinished = document.getElementById(IS_FINISEHD_ID).checked;
-  const bookData = findBook(parseInt(id));
-  
-  bookData.title = title;
-  bookData.author = author;
-  bookData.year = year;
-  bookData.isFinished = isFinished;
+  incompleteContainer.innerHTML = ""
+  completeContainer.innerHTML = ""
 
-  updateDataToStorage();
-  window.alert("Please refresh the page to see the updated data.")
-}
+  const normalizedKeyword = keyword.trim().toLowerCase()
+  const renderedBooks = normalizedKeyword
+    ? books.filter(function (book) {
+        return book.title.toLowerCase().includes(normalizedKeyword)
+      })
+    : books
 
-const searchData = () => {
-  const completedBooksContainer = document.getElementById(COMPLETED_BOOKS_ID);
-  const uncompleteBooksContainer = document.getElementById(UNCOMPLETE_BOOKS_ID);
-  const keyword = document.getElementById(SEARCH_FIELD_ID).value;
+  renderedBooks.forEach(function (book) {
+    const bookElement = createBookItemElement(book, handlers)
 
-  completedBooksContainer.innerHTML = '';
-  uncompleteBooksContainer.innerHTML = '';
+    if (book.isComplete) {
+      completeContainer.append(bookElement)
+      return
+    }
 
-  const filteredData = books.filter((book) => book.title.toLowerCase().includes(keyword.toLowerCase()));
-  filteredData.forEach(data => {
-      let composedData = {
-          id: data.id,
-          title: data.title,
-          author: data.author,
-          year: data.year,
-          isFinished: data.isFinished
-      }
-      const bookContainer = makeBookList(composedData);
-
-      if(data.isFinished) {
-          completedBooksContainer.append(bookContainer);
-      } else {
-          uncompleteBooksContainer.append(bookContainer);
-      }
-  });
-
-  document.getElementById(SEARCH_FIELD_ID).value = '';
-}
-
-const refreshDataFromBooks = () => {
-  const completedBooksContainer = document.getElementById(COMPLETED_BOOKS_ID);
-  const uncompleteBooksContainer = document.getElementById(UNCOMPLETE_BOOKS_ID);
-
-  for(book of books){
-      let composedData = {
-          id: book.id,
-          title: book.title,
-          author: book.author,
-          year: book.year,
-          isFinished: book.isFinished
-      }
-      const bookContainer = makeBookList(composedData);
-
-      if(book.isFinished) {
-          completedBooksContainer.append(bookContainer);
-      } else {
-          uncompleteBooksContainer.append(bookContainer);
-      }
-  }
+    incompleteContainer.append(bookElement)
+  })
 }
