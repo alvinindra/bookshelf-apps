@@ -1,5 +1,8 @@
 let books = []
 let activeSearchKeyword = ""
+let editingBookId = null
+let submitButtonElement = null
+let editButtonElement = null
 
 function isStorageSupported() {
   return typeof Storage !== "undefined"
@@ -75,9 +78,37 @@ function refreshBookList() {
     {
       onToggle: toggleBookCompleteStatus,
       onDelete: removeBook,
+      onEdit: startEditBook,
     },
     activeSearchKeyword,
   )
+}
+
+function setBookFormMode(mode) {
+  if (!submitButtonElement || !editButtonElement) {
+    return
+  }
+
+  if (mode === "edit") {
+    submitButtonElement.style.display = "none"
+    editButtonElement.style.display = ""
+    return
+  }
+
+  submitButtonElement.style.display = ""
+  editButtonElement.style.display = "none"
+}
+
+function fillBookInputForm(book) {
+  const titleField = document.getElementById(INPUT_TITLE_ID)
+  const authorField = document.getElementById(INPUT_AUTHOR_ID)
+  const yearField = document.getElementById(INPUT_YEAR_ID)
+  const isCompleteField = document.getElementById(INPUT_IS_COMPLETE_ID)
+
+  titleField.value = book.title
+  authorField.value = book.author
+  yearField.value = String(book.year)
+  isCompleteField.checked = book.isComplete
 }
 
 function addBook() {
@@ -105,6 +136,66 @@ function findBookIndexById(bookId) {
   })
 }
 
+function findBookById(bookId) {
+  return books.find(function (book) {
+    return String(book.id) === String(bookId)
+  })
+}
+
+function startEditBook(bookId) {
+  const book = findBookById(bookId)
+
+  if (!book) {
+    return
+  }
+
+  editingBookId = book.id
+  fillBookInputForm(book)
+  setBookFormMode("edit")
+}
+
+function finishEditMode() {
+  editingBookId = null
+  setBookFormMode("add")
+}
+
+function updateBook() {
+  if (editingBookId === null) {
+    return
+  }
+
+  const inputValues = getBookInputValues()
+
+  if (
+    !inputValues.title ||
+    !inputValues.author ||
+    Number.isNaN(inputValues.year)
+  ) {
+    return
+  }
+
+  const bookIndex = findBookIndexById(editingBookId)
+
+  if (bookIndex === -1) {
+    finishEditMode()
+    resetBookInputForm()
+    return
+  }
+
+  books[bookIndex] = {
+    ...books[bookIndex],
+    title: inputValues.title,
+    author: inputValues.author,
+    year: inputValues.year,
+    isComplete: inputValues.isComplete,
+  }
+
+  saveBooks()
+  finishEditMode()
+  resetBookInputForm()
+  refreshBookList()
+}
+
 function toggleBookCompleteStatus(bookId) {
   const bookIndex = findBookIndexById(bookId)
 
@@ -127,6 +218,11 @@ function removeBook(bookId) {
 
   books.splice(bookIndex, 1)
 
+  if (String(editingBookId) === String(bookId)) {
+    finishEditMode()
+    resetBookInputForm()
+  }
+
   saveBooks()
   refreshBookList()
 }
@@ -142,27 +238,28 @@ function searchBooks(event) {
 
 function onBookFormReset(event) {
   event.preventDefault()
-
-  const searchInput = document.getElementById(SEARCH_BOOK_TITLE_ID)
-  activeSearchKeyword = ""
-  searchInput.value = ""
-
+  finishEditMode()
   resetBookInputForm()
-  refreshBookList()
 }
 
 document.addEventListener("DOMContentLoaded", function () {
   const bookForm = document.getElementById(INPUT_BOOK_FORM_ID)
   const searchForm = document.getElementById(SEARCH_BOOK_FORM_ID)
-  const editButton = document.getElementById(EDIT_BUTTON_ID)
+  submitButtonElement = document.getElementById(SUBMIT_BUTTON_ID)
+  editButtonElement = document.getElementById(EDIT_BUTTON_ID)
 
-  if (editButton) {
-    editButton.style.display = "none"
-    editButton.type = "button"
+  if (editButtonElement) {
+    editButtonElement.style.display = "none"
+    editButtonElement.type = "button"
+    editButtonElement.addEventListener("click", function (event) {
+      event.preventDefault()
+      updateBook()
+    })
   }
 
   loadBooks()
   refreshBookList()
+  setBookFormMode("add")
 
   bookForm.addEventListener("submit", function (event) {
     event.preventDefault()

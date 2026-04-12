@@ -7,6 +7,7 @@ const INPUT_AUTHOR_ID = "inputBookAuthor"
 const INPUT_YEAR_ID = "inputBookYear"
 const INPUT_IS_COMPLETE_ID = "inputBookIsComplete"
 const SEARCH_BOOK_TITLE_ID = "searchBookTitle"
+const SUBMIT_BUTTON_ID = "submit"
 const EDIT_BUTTON_ID = "edit"
 
 const INCOMPLETE_BOOKSHELF_LIST_ID = "incompleteBookshelfList"
@@ -19,4 +20,5 @@ const BOOK_ITEM_TEST_IDS = Object.freeze({
   YEAR: "bookItemYear",
   TOGGLE_BUTTON: "bookItemIsCompleteButton",
   DELETE_BUTTON: "bookItemDeleteButton",
+  EDIT_BUTTON: "bookItemEditButton",
 })

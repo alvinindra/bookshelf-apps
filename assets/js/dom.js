@@ -64,7 +64,17 @@ function createBookItemElement(book, handlers) {
     handlers.onDelete(book.id)
   })
 
-  actionContainer.append(toggleButton, deleteButton)
+  const editButton = document.createElement("button")
+  editButton.type = "button"
+  editButton.setAttribute("data-testid", BOOK_ITEM_TEST_IDS.EDIT_BUTTON)
+  editButton.textContent = "Edit buku"
+  editButton.addEventListener("click", function () {
+    if (typeof handlers.onEdit === "function") {
+      handlers.onEdit(book.id)
+    }
+  })
+
+  actionContainer.append(toggleButton, deleteButton, editButton)
   bookContainer.append(titleEl, authorEl, yearEl, actionContainer)
 
   return bookContainer
