@@ -28,25 +28,28 @@
       <section class="card card--sticky">
         <h2 class="card__title">Masukkan Buku Baru</h2>
         <p class="card__subtitle">Tambahkan detail buku untuk mulai mengelola rak bacaanmu.</p>
-        <form id="inputBook" class="book-form">
+        <form id="inputBook" class="book-form" data-testid="bookForm">
           <label class="input">
-            <input id="inputBookTitle" class="input__field" type="text" placeholder=" " required />
+            <input id="inputBookTitle" class="input__field" type="text" placeholder=" " required
+              data-testid="bookFormTitleInput" />
             <span class="input__label">Judul</span>
           </label>
           <label class="input">
-            <input id="inputBookAuthor" class="input__field" type="text" placeholder=" " required />
+            <input id="inputBookAuthor" class="input__field" type="text" placeholder=" " required
+              data-testid="bookFormAuthorInput" />
             <span class="input__label">Penulis</span>
           </label>
           <label class="input">
-            <input id="inputBookYear" class="input__field" type="number" placeholder=" " required />
+            <input id="inputBookYear" class="input__field" type="number" placeholder=" " required
+              data-testid="bookFormYearInput" />
             <span class="input__label">Tahun</span>
           </label>
           <label class="input input--checkbox" for="inputBookIsComplete">
-            <input id="inputBookIsComplete" type="checkbox" />
+            <input id="inputBookIsComplete" type="checkbox" data-testid="bookFormIsCompleteCheckbox" />
             <span class="input__label--checkbox">Selesai dibaca</span>
           </label>
           <div class="button-group">
-            <button id="submit" type="submit">Submit</button>
+            <button id="submit" type="submit" data-testid="bookFormSubmitButton">Submit</button>
             <button id="edit" type="button">Edit</button>
             <button id="reset" type="reset" class="red">Reset</button>
           </div>
@@ -58,12 +61,13 @@
       <section class="card card--search">
         <h2 class="card__title">Cari Buku</h2>
         <p class="card__subtitle">Gunakan pencarian judul untuk menemukan buku lebih cepat.</p>
-        <form id="searchBook" class="form-search">
+        <form id="searchBook" class="form-search" data-testid="searchBookForm">
           <label class="input input--search">
-            <input id="searchBookTitle" class="input__field search" type="text" placeholder=" " />
+            <input id="searchBookTitle" class="input__field search" type="text" placeholder=" "
+              data-testid="searchBookFormTitleInput" />
             <span class="input__label search">Judul</span>
           </label>
-          <button id="searchSubmit" class="search" type="submit">Cari</button>
+          <button id="searchSubmit" class="search" type="submit" data-testid="searchBookFormSubmitButton">Cari</button>
         </form>
       </section>
 
@@ -71,13 +75,15 @@
         <section class="card shelf">
           <h2 class="card__title">Belum selesai dibaca</h2>
           <p class="card__subtitle">Daftar buku yang masih dalam proses kamu baca.</p>
-          <div id="incompleteBookshelfList" class="book-list" data-empty-message="Belum ada buku di rak ini."></div>
+          <div id="incompleteBookshelfList" class="book-list" data-empty-message="Belum ada buku di rak ini."
+            data-testid="incompleteBookList"></div>
         </section>
 
         <section class="card shelf shelf--done">
           <h2 class="card__title">Selesai dibaca</h2>
           <p class="card__subtitle">Buku yang sudah kamu tuntaskan.</p>
-          <div id="completeBookshelfList" class="book-list" data-empty-message="Belum ada buku yang ditandai selesai.">
+          <div id="completeBookshelfList" class="book-list" data-empty-message="Belum ada buku yang ditandai selesai."
+            data-testid="completeBookList">
           </div>
         </section>
       </div>
